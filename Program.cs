@@ -8,13 +8,14 @@ using System.Net.Http;
 using Newtonsoft.Json;
 using System.Net;
 using System.Configuration;
+using System.Threading;
 
 namespace UploadFilesInCloud
 {
     class Program
     {
         static string token = string.Empty;
-        static async Task Main(string[] args)
+        static void Main(string[] args)
         {
             try
             {
@@ -28,11 +29,14 @@ namespace UploadFilesInCloud
                 var files = Directory.GetFiles(path);
                 if (files.Length == 0)
                     throw new Exception("Directory is empty");
-                for(int i =0; i<=files.Length-1;i++)
+
+                for (int j = 0; j <= files.Length-1; j++)
                 {
-                    await UploadFile(files[i], cloudDir);
+                    StartUploaded(files[j], cloudDir);
                 }
-                
+
+                Console.Read();
+
             }
             catch(Exception ex)
             {
@@ -45,10 +49,16 @@ namespace UploadFilesInCloud
         
         }
 
+        static async void StartUploaded(string filePath, string cloudDirectory)
+        {
+                Console.WriteLine($"{filePath} is started to upload...");
+                await Task.Run(() => UploadFile(filePath,cloudDirectory));                
+        }
+
         private static async Task UploadFile(string filePath, string cloudDirectory)
         {
-
             var newFilePath = $"{cloudDirectory}/{Path.GetFileName(filePath)}";
+            Console.WriteLine($"{filePath} is started to upload");
             try
             {
                 using (var wc = new WebClient())
